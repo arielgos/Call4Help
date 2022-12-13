@@ -5,17 +5,32 @@ on:
     branches:
       - master
 jobs:
-  deploy:
-    name: Deploy to EC2 on master branch push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the files
-        uses: actions/checkout@v2
+#  deploy:
+#    name: Deploy to EC2 on master branch push
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout the files
+#        uses: actions/checkout@v2
+#
+#      - name: Deploy to Servers
+#        uses: easingthemes/ssh-deploy@main
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+#          REMOTE_HOST: ${{ secrets.HOST_DNS }}
+#          REMOTE_USER: ${{ secrets.USERNAME }}
+#          TARGET: ${{ secrets.TARGET_DIR }}
 
-      - name: Deploy to Servers
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST_DNS }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_DIR }}
+    deploy:
+      name: Deploy to ELB on master branch push
+      runs-on: ubuntu-latest
+      steps:
+        - name: Deploy to ELB
+          uses: chriscohoat/deploy-to-elb-action@master
+          with:
+            script: /home/ec2-user/deploy_ci.sh
+            autoscaling_group_name: ${{ secrets.AUTOSCALING_GROUP_NAME }}
+            ssh_key: ${{ secrets.SSH_KEY }}
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
