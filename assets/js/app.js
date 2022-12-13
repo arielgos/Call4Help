@@ -29,11 +29,25 @@ firebase.auth().signInAnonymously()
 
 firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
-        await firebase.firestore().collection('users').get()
-            .then(snapshot => {
-                snapshot.forEach(doc => {
-                    console.log(doc.data());
+        await firebase.firestore().collectionGroup('alerts')
+            //.orderBy("date", "desc")
+            .onSnapshot(querySnapshot => {
+                querySnapshot.docChanges().forEach((change) => {
+                    let doc = change.doc.data();
+                    doc.distance = 0;
+                    if (change.type === "added") {
+                        items.push(doc);
+                    }
+                    if (change.type === "modified") {
+
+                    }
+                    if (change.type === "removed") {
+
+                    }
                 });
+
+                loadItems();
+                drawMarkers();
             });
     }
 });
@@ -49,7 +63,6 @@ $(document).ready(function () {
         loadItems();
         drawMarkers();
         event.preventDefault();
-
     });
 
     $("#print").click(function (event) {
@@ -70,17 +83,22 @@ function loadItems() {
 
     for (i = 0; i < items.length; i++) {
         let li = $("<li>", {
-            lat: items[i].point.lat,
-            lng: items[i].point.lng,
-            code: items[i].code,
-            name: items[i].name,
-            address: items[i].address
+            latitude: items[i].latitude,
+            longitude: items[i].longitude,
+            id: items[i].id,
+            name: items[i].description,
+            status: items[i].status
         });
         let index = $("<div>", {class: "index"});
         let div = $("<div>", {class: "text"});
         index.html((i + 1).toString());
         li.append(index);
-        div.html("[" + items[i].code + "] " + items[i].name);
+        div.html(
+            formatter.date(items[i].date.toDate()) + " [" + items[i].status + "]"
+            + "<br><b>" + items[i].description + "</b>"
+            + "<br>" + items[i].tags.replaceAll(',', ", ")
+            + "<br>" + items[i].objects.replaceAll(',', ", ")
+        );
         li.append(div);
         $(".items .list").append(li);
     }
@@ -101,37 +119,18 @@ function drawMarkers() {
     $("ol li").each(function (index) {
         let marker = new google.maps.Marker({
             position: {
-                lat: parseFloat($(this).attr("lat")),
-                lng: parseFloat($(this).attr("lng"))
+                lat: parseFloat($(this).attr("latitude")),
+                lng: parseFloat($(this).attr("longitude"))
             },
             label: ((index + 1)).toString(),
-            title: "[" + $(this).attr("code") + "] " + $(this).attr("name") + " Dir: " + $(this).attr("address"),
+            title: $(this).attr("name") + " [" + $(this).attr("status") + "]",
             map: map
         });
         markers.push(marker);
         paths.push({
-            lat: parseFloat($(this).attr("lat")),
-            lng: parseFloat($(this).attr("lng"))
+            lat: parseFloat($(this).attr("latitude")),
+            lng: parseFloat($(this).attr("longitude"))
         });
-    });
-
-    //limpiamos el circulo del mapa
-    if (firstCircle != null) {
-        firstCircle.setMap(null);
-    }
-
-    firstCircle = new google.maps.Circle({
-        strokeColor: "#FF0000",
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        fillColor: "#FF0000",
-        fillOpacity: 0.35,
-        map: map,
-        center: {
-            lat: markers[0].position.lat(),
-            lng: markers[0].position.lng()
-        },
-        radius: 100
     });
 
     path = new google.maps.Polyline({
@@ -184,9 +183,9 @@ function orderMarkers() {
     let others = null;
 
     $("ol li").each(function (index) {
-        if (index == 0) {
-            first = Enumerable.From(items).Where("$.code=='" + $(this).attr("code") + "'").Select("$").FirstOrDefault();
-            others = Enumerable.From(items).Where("$.code!='" + $(this).attr("code") + "'").Select("$").ToArray();
+        if (index === 0) {
+            first = Enumerable.From(items).Where("$.id=='" + $(this).attr("id") + "'").Select("$").FirstOrDefault();
+            others = Enumerable.From(items).Where("$.id!='" + $(this).attr("id") + "'").Select("$").ToArray();
         }
     });
 
@@ -201,7 +200,7 @@ function getRoute(first, others, result) {
     if (others.length > 0) {
         next = getNearest(first, others);
         result.push(next);
-        others = Enumerable.From(others).Where("$.code!='" + next.code + "'").Select("$").ToArray();
+        others = Enumerable.From(others).Where("$.id!='" + next.id + "'").Select("$").ToArray();
         getRoute(next, others, result);
     }
 }
@@ -209,14 +208,50 @@ function getRoute(first, others, result) {
 function getNearest(first, others) {
     //calculamos las distancias
     for (let i = 0; i < others.length; i++) {
-        others[i].distance = distanceBetween(first.point, others[i].point);
+        others[i].distance = distanceBetween(first, others[i]);
     }
     return Enumerable.From(others).OrderBy("$.distance").FirstOrDefault();
 }
 
 function distanceBetween(point1, point2) {
-    let a = point1.lat - point2.lat;
-    let b = point1.lng - point2.lng;
+    let a = point1.latitude - point2.latitude;
+    let b = point1.longitude - point2.longitude;
 
     return Math.sqrt(a * a + b * b);
 }
+
+const formatter = {
+    date: (date) => {
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+        let hour = date.getHours();
+        let min = date.getMinutes();
+        let sec = date.getSeconds();
+
+        month = (month < 10 ? "0" : "") + month;
+        day = (day < 10 ? "0" : "") + day;
+        hour = (hour < 10 ? "0" : "") + hour;
+        min = (min < 10 ? "0" : "") + min;
+        sec = (sec < 10 ? "0" : "") + sec;
+
+        return day + "/" + month + "/" + date.getFullYear() + " " + hour + ":" + min + ":" + sec;
+    },
+    money: (amount, decimalCount = 2, decimal = ".", thousands = ",") => {
+        try {
+            decimalCount = Math.abs(decimalCount);
+            decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
+
+            const negativeSign = amount < 0 ? "-" : "";
+
+            let i = parseInt(amount = Math.abs(Number(amount) || 0).toFixed(decimalCount)).toString();
+            let j = (i.length > 3) ? i.length % 3 : 0;
+
+            return negativeSign +
+                (j ? i.substr(0, j) + thousands : '') +
+                i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousands) +
+                (decimalCount ? decimal + Math.abs(amount - i).toFixed(decimalCount).slice(2) : "");
+        } catch (e) {
+            console.log(e)
+        }
+    }
+};
