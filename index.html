@@ -3,8 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Alerta Santa Cruz</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  Alerta Santa Cruz
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-9" id="map"></div>
+        <div class="col-md-3">
+            <div class="title">
+                Alertas
+            </div>
+            <div class="items">
+                <ol class="list"></ol>
+            </div>
+            <div class="buttons">
+                <button id="calc">Calcular</button>
+                <button id="print">Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<!-- Google -->
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7Rj8hjbncjOA6oa2_kiL_S8C2PADLZOQ&language=en"></script>
+<!-- Others-->
+<script type="text/javascript" src="assets/js/jquery.js"></script>
+<script type="text/javascript" src="assets/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="assets/js/linq.min.js"></script>
+<script type="text/javascript" src="assets/js/sortable.js"></script>
+<script type="text/javascript" src="assets/js/app.js"></script>
 </body>
 </html>
