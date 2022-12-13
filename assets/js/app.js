@@ -95,9 +95,9 @@ function loadItems() {
         li.append(index);
         div.html(
             formatter.date(items[i].date.toDate()) + " [" + items[i].status + "]"
-            + "<br><b>" + items[i].description + "</b>"
-            + "<br>" + items[i].tags.replaceAll(',', ", ")
-            + "<br>" + items[i].objects.replaceAll(',', ", ")
+            + "<br><b class='title'>" + items[i].description + "</b>"
+            + "<br><i>" + items[i].tags.replaceAll(',', ", ") + "</i>"
+            + "<br><i>" + items[i].objects.replaceAll(',', ", ") + "</i>"
         );
         li.append(div);
         $(".items .list").append(li);

@@ -121,6 +121,11 @@ ol li div.text {
     width: calc(100% - 42px);
 }
 
+
+ol li div.text .title{
+    font-size: 16px;
+}
+
 @media print {
     .col-md-9 {
         width: 100%;
