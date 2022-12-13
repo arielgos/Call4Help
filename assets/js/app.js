@@ -90,7 +90,10 @@ function loadItems() {
             status: items[i].status
         });
         let index = $("<div>", {class: "index"});
-        let div = $("<div>", {class: "text"});
+        let div = $("<div>", {
+            class: "text",
+            rowNumber: i
+        });
         index.html((i + 1).toString());
         li.append(index);
         div.html(
@@ -110,6 +113,29 @@ function loadItems() {
         }
     });
 
+    $(".items .list .text").click(function () {
+        let index = parseInt($(this).attr("rowNumber"));
+        $("#alertModal #id").html(items[index].id);
+        $("#alertModal #date").html(formatter.date(items[index].date.toDate()));
+        $("#alertModal #description").html(items[index].description);
+        $("#alertModal #tags").html(items[index].tags);
+        $("#alertModal #objects").html(items[index].objects);
+
+        if (items[index].status.toLowerCase().indexOf("pendiente") !== false) {
+            $("#alertModal #pending").prop("checked", true);
+        }
+        if (items[index].status.toLowerCase().indexOf("proceso") !== false) {
+            $("#alertModal #inProgress").prop("checked", true);
+        }
+        if (items[index].status.toLowerCase().indexOf("cancelado") !== false) {
+            $("#alertModal #cancel").prop("checked", true);
+        }
+        if (items[index].status.toLowerCase().indexOf("solucionado") !== false) {
+            $("#alertModal #success").prop("checked", true);
+        }
+
+        $("#alertModal").modal('show');
+    });
 }
 
 function drawMarkers() {

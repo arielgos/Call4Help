@@ -5,7 +5,6 @@
     <title>Alerta Santa Cruz</title>
     <!--stylesheets-->
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="assets/css/font-awesome.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -24,6 +23,48 @@
             <div class="buttons">
                 <button id="calc">Calcular</button>
                 <button id="print">Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-lg fade" role="dialog" id="alertModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Alerta <b>#<span id="id"></span></b>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3 id="date"></h3>
+                <h4 id="description"></h4>
+                <p id="tags"></p>
+                <p id="objects"></p>
+                <div class="form-group">
+                    <label for="detail" class="form-label mt-4">Notas</label>
+                    <textarea class="form-control" id="detail" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="status" id="pending" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="pending">Pendiente</label>
+
+                    <input type="radio" class="btn-check" name="status" id="inProgress" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="inProgress">En Proceso</label>
+
+                    <input type="radio" class="btn-check" name="status" id="success" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="success">Solucionado</label>
+
+                    <input type="radio" class="btn-check" name="status" id="cancel" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="cancel">Cancelado</label>
+                </div>
+                <button type="button" class="btn btn-primary" id="save">Guardar</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
