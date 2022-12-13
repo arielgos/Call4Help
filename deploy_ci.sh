@@ -16,3 +16,6 @@ cd Call4Help-master
 cp -R * /var/www/html/
 cd ..
 echo "Update finish..."
+
+rm -Rfv Call4Help-master
+rm -Rfv master.zip
