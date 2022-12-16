@@ -115,26 +115,33 @@ function loadItems() {
 
     $(".items .list .text").click(function () {
         let index = parseInt($(this).attr("rowNumber"));
+        $("#alertModal #id").attr("rowNumber", index);
         $("#alertModal #id").html(items[index].id);
         $("#alertModal #date").html(formatter.date(items[index].date.toDate()));
         $("#alertModal #description").html(items[index].description);
         $("#alertModal #tags").html(items[index].tags);
         $("#alertModal #objects").html(items[index].objects);
 
-        if (items[index].status.toLowerCase().indexOf("pendiente") !== false) {
+        if (items[index].status.toLowerCase().includes("pendiente")) {
             $("#alertModal #pending").prop("checked", true);
         }
-        if (items[index].status.toLowerCase().indexOf("proceso") !== false) {
+        if (items[index].status.toLowerCase().includes("proceso")) {
             $("#alertModal #inProgress").prop("checked", true);
         }
-        if (items[index].status.toLowerCase().indexOf("cancelado") !== false) {
+        if (items[index].status.toLowerCase().includes("cancelado")) {
             $("#alertModal #cancel").prop("checked", true);
         }
-        if (items[index].status.toLowerCase().indexOf("solucionado") !== false) {
+        if (items[index].status.toLowerCase().includes("solucionado")) {
             $("#alertModal #success").prop("checked", true);
         }
 
         $("#alertModal").modal('show');
+    });
+
+    $("#alertModal #save").click(function () {
+        let index = parseInt($("#alertModal #id").attr("rowNumber"));
+        let alert = items[index];
+
     });
 }
 
