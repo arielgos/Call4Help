@@ -1,8 +1,30 @@
 html,
-body{
+body {
     margin: 0;
     padding: 0;
 }
+
+#loading {
+    background-color: rgba(0, 0, 0, 0.65);
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+}
+
+#loading div {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: #FFF;
+    margin-top: 40vh;
+    font-size: 1.6em;
+}
+
+
 body.dragging, body.dragging * {
     cursor: move !important;
 }
@@ -127,7 +149,7 @@ ol li div.text {
 }
 
 
-ol li div.text .title{
+ol li div.text .title {
     font-size: 16px;
 }
 

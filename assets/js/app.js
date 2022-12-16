@@ -29,8 +29,9 @@ firebase.auth().signInAnonymously()
 
 firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {
+        loading.show();
         await firebase.firestore().collectionGroup('alerts')
-            //.orderBy("date", "desc")
+            .orderBy("date", "desc")
             .onSnapshot(querySnapshot => {
                 querySnapshot.docChanges().forEach((change) => {
                     let doc = change.doc.data();
@@ -54,6 +55,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
 $(document).ready(function () {
     console.log("Start App");
+    loading.hide();
     loadMap();
     loadItems();
     drawMarkers();
@@ -69,6 +71,48 @@ $(document).ready(function () {
         printMap();
         event.preventDefault();
     });
+
+    $("#alertModal #save").click(async function () {
+        let index = parseInt($("#alertModal #id").attr("rowNumber"));
+        let alert = items[index];
+
+        if ($("#alertModal #pending").prop("checked")) {
+            alert.status = "Pendiente";
+        }
+        if ($("#alertModal #inProgress").prop("checked")) {
+            alert.status = "En Proceso";
+        }
+        if ($("#alertModal #cancel").prop("checked")) {
+            alert.status = "Cancelado";
+        }
+        if ($("#alertModal #success").prop("checked")) {
+            alert.status = "Solucionado";
+        }
+
+        alert.events.push({
+            date: firebase.firestore.Timestamp.fromDate(new Date()),
+            user: "Admin",
+            detail: $("#alertModal #detail").val()
+        });
+
+        loading.show();
+
+        let querySnapshot = await firebase.firestore().collectionGroup('alerts')
+            .where('id', '==', alert.id)
+            .get();
+        querySnapshot.docs.forEach(snapshot => {
+
+            snapshot.ref.update({
+                status: alert.status,
+                events: alert.events
+            })
+
+            loading.hide();
+
+            $('#alertModal').modal('hide');
+        })
+
+    });
 });
 
 function renumerateItems() {
@@ -78,6 +122,8 @@ function renumerateItems() {
 }
 
 function loadItems() {
+
+    loading.show();
 
     $(".items .list").html("");
 
@@ -138,11 +184,7 @@ function loadItems() {
         $("#alertModal").modal('show');
     });
 
-    $("#alertModal #save").click(function () {
-        let index = parseInt($("#alertModal #id").attr("rowNumber"));
-        let alert = items[index];
-
-    });
+    loading.hide();
 }
 
 function drawMarkers() {
@@ -286,5 +328,14 @@ const formatter = {
         } catch (e) {
             console.log(e)
         }
+    }
+};
+
+const loading = {
+    hide: () => {
+        $('#loading').hide();
+    },
+    show: () => {
+        $('#loading').show();
     }
 };
